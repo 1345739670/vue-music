@@ -12,6 +12,8 @@ export const mode = state => state.mode
 
 export const currentIndex = state => state.currentIndex
 
+export const currentMusicUrl = state => state.currentMusicUrl
+
 export const currentSong = (state) => {
   return state.playList[state.currentIndex] || {}
 }

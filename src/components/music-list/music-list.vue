@@ -83,10 +83,11 @@ export default {
     back () {
       this.$router.back()
     },
-    selectItem (item, index) {
+    selectItem (item, index, url) {
       this.selectPlay({
         list: this.songs,
-        index
+        index,
+        url
       })
     },
     ...mapActions([

@@ -59,7 +59,7 @@
         </div>
       </div>
     </transition>
-    <audio :src="currentSong.url" ref="audio"></audio>
+    <audio :src="currentMusicUrl" ref="audio"></audio>
   </div>
 </template>
 
@@ -166,6 +166,7 @@ export default {
       'fullScreen',
       'playList',
       'currentSong',
+      'currentMusicUrl',
       'playing'
     ])
   }
