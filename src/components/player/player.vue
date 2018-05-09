@@ -27,13 +27,13 @@
             <i class="icon-sequence"></i>
           </div>
           <div class="icon i-left">
-            <i class="icon-prev"></i>
+            <i class="icon-prev" @click="prev"></i>
           </div>
           <div class="icon i-center">
             <i :class="playIcon" @click="togglePlaying"></i>
           </div>
           <div class="icon i-right">
-            <i class="icon-next"></i>
+            <i class="icon-next" @click="next"></i>
           </div>
           <div class="icon i-right">
             <i class="icon icon-not-favorite"></i>
@@ -67,10 +67,38 @@
 import {mapGetters, mapMutations} from 'vuex'
 import animations from 'create-keyframe-animation'
 import {prefixStyle} from 'common/js/dom'
+import {getvkey, getMediaUrl} from 'api/commonApi'
+import {ERR_OK} from 'api/config'
 
 const transform = prefixStyle('transform')
 export default {
   methods: {
+    next () {
+      let index = this.currentIndex + 1
+      // 如果是列表最后一首，置零
+      if (index === this.playList.length) {
+        index = 0
+      }
+      this._switchSong(index)
+    },
+    prev () {
+      let index = this.currentIndex - 1
+      if (index === -1) {
+        index = this.playList.length - 1
+      }
+      this._switchSong(index)
+    },
+    _switchSong (index) {
+      getvkey(this.playList[index].mid).then((res) => {
+        if (res.code === ERR_OK) {
+          let vkey = res.data.items[0].vkey
+          let filename = res.data.items[0].filename
+          let url = getMediaUrl(filename, vkey)
+          this.setCurrentIndex(index)
+          this.setCurrentMusicUrl(url)
+        }
+      })
+    },
     back () {
       this.setFullScreen(false)
     },
@@ -136,7 +164,9 @@ export default {
     },
     ...mapMutations({
       setFullScreen: 'SET_FULL_SCREEN',
-      setPlayingState: 'SET_PLAYING_STATE'
+      setPlayingState: 'SET_PLAYING_STATE',
+      setCurrentIndex: 'SET_CURRENT_INDEX',
+      setCurrentMusicUrl: 'SET_CURRENT_MUSIC_URL'
     })
   },
   watch: {
@@ -166,6 +196,7 @@ export default {
       'fullScreen',
       'playList',
       'currentSong',
+      'currentIndex',
       'currentMusicUrl',
       'playing'
     ])
