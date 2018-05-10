@@ -96,7 +96,6 @@ export default {
   },
   watch: {
     scrollY (newY) {
-      console.log(newY)
       let blur = 0
       let scale = 1
       let zIndex = 0
