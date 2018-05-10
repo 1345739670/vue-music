@@ -25,6 +25,7 @@
         <div class="progress-wrapper">
           <span class="time time-l">{{format(currentTime)}}</span>
           <div class="progress-bar-wrapper">
+            <ProgressBar :percent="percent" @percentChange="onProgressBarChange"></ProgressBar>
           </div>
           <span class="time time-r">{{format(currentSong.duration)}}</span>
         </div>
@@ -75,6 +76,7 @@ import animations from 'create-keyframe-animation'
 import {prefixStyle} from 'common/js/dom'
 import {getvkey, getMediaUrl} from 'api/commonApi'
 import {ERR_OK} from 'api/config'
+import ProgressBar from 'base/progress-bar/progress-bar'
 
 const transform = prefixStyle('transform')
 export default {
@@ -85,6 +87,12 @@ export default {
     }
   },
   methods: {
+    onProgressBarChange (percent) {
+      this.$refs.audio.currentTime = this.currentSong.duration * percent
+      if (!this.playing) {
+        this.togglePlaying()
+      }
+    },
     _pad (num, n = 2) {
       let len = num.toString().length
       while (len < n) {
@@ -242,6 +250,9 @@ export default {
     disableCls () {
       return this.songReady ? '' : 'disable'
     },
+    percent () {
+      return this.currentTime / this.currentSong.duration
+    },
     ...mapGetters([
       'fullScreen',
       'playList',
@@ -250,6 +261,9 @@ export default {
       'currentMusicUrl',
       'playing'
     ])
+  },
+  components: {
+    ProgressBar
   }
 }
 </script>
