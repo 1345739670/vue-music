@@ -26,13 +26,13 @@
           <div class="icon i-left">
             <i class="icon-sequence"></i>
           </div>
-          <div class="icon i-left">
-            <i class="icon-prev" @click="prev"></i>
+          <div class="icon i-left" :class="disableCls">
+            <i class="icon-prev"  @click="prev"></i>
           </div>
-          <div class="icon i-center">
+          <div class="icon i-center" :class="disableCls">
             <i :class="playIcon" @click="togglePlaying"></i>
           </div>
-          <div class="icon i-right">
+          <div class="icon i-right" :class="disableCls">
             <i class="icon-next" @click="next"></i>
           </div>
           <div class="icon i-right">
@@ -59,7 +59,7 @@
         </div>
       </div>
     </transition>
-    <audio :src="currentMusicUrl" ref="audio"></audio>
+    <audio :src="currentMusicUrl" ref="audio" @canplay="ready" @error="error"></audio>
   </div>
 </template>
 
@@ -72,8 +72,23 @@ import {ERR_OK} from 'api/config'
 
 const transform = prefixStyle('transform')
 export default {
+  data () {
+    return {
+      songReady: false
+    }
+  },
   methods: {
+    ready () {
+      this.songReady = true
+    },
+    error () {
+      this.songReady = true
+      console.log('error')
+    },
     next () {
+      if (!this.songReady) {
+        return
+      }
       let index = this.currentIndex + 1
       // 如果是列表最后一首，置零
       if (index === this.playList.length) {
@@ -82,6 +97,9 @@ export default {
       this._switchSong(index)
     },
     prev () {
+      if (!this.songReady) {
+        return
+      }
       let index = this.currentIndex - 1
       if (index === -1) {
         index = this.playList.length - 1
@@ -96,6 +114,10 @@ export default {
           let url = getMediaUrl(filename, vkey)
           this.setCurrentIndex(index)
           this.setCurrentMusicUrl(url)
+          if (!this.playing) {
+            this.togglePlaying()
+          }
+          this.songReady = false
         }
       })
     },
@@ -191,6 +213,9 @@ export default {
     },
     cdCls () {
       return this.playing ? 'play' : 'play pause'
+    },
+    disableCls () {
+      return this.songReady ? '' : 'disable'
     },
     ...mapGetters([
       'fullScreen',
