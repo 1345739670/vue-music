@@ -38,7 +38,6 @@ export default {
       if (!this.touch.initiated) {
         return
       }
-      console.log(this.$refs.progressBar.clientWidth)
       const deltaX = e.touches[0].pageX - this.touch.startX
       const offsetWidth = Math.min(this.$refs.progressBar.clientWidth, Math.max(0, this.touch.left + deltaX))
       this._offset(offsetWidth)
@@ -48,7 +47,6 @@ export default {
       this._triggerPercent()
     },
     _triggerPercent () {
-      console.log(this.$refs.progressBar.clientWidth)
       const barWidth = this.$refs.progressBar.clientWidth - progressBtnWidth
       const percent = this.$refs.progress.clientWidth / barWidth
       this.$emit('percentChange', percent)
@@ -61,7 +59,6 @@ export default {
   watch: {
     percent (newpercent) {
       if (newpercent > 0 && !this.touch.initiated) {
-        console.log(this.$refs.progressBar.clientWidth)
         const barWidth = this.$refs.progressBar.clientWidth - progressBtnWidth
         const offsetWidth = newpercent * barWidth
         this._offset(offsetWidth)
