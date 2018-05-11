@@ -30,8 +30,8 @@
           <span class="time time-r">{{format(currentSong.duration)}}</span>
         </div>
         <div class="operators">
-          <div class="icon i-left">
-            <i class="icon-sequence"></i>
+          <div class="icon i-left" @click="changeMode">
+            <i :class="modeIcon"></i>
           </div>
           <div class="icon i-left" :class="disableCls">
             <i class="icon-prev"  @click="prev"></i>
@@ -68,7 +68,7 @@
         </div>
       </div>
     </transition>
-    <audio :src="currentMusicUrl" ref="audio" @canplay="ready" @error="error" @timeupdate="updateTime"></audio>
+    <audio :src="currentMusicUrl" ref="audio" @canplay="ready" @error="error" @timeupdate="updateTime" @ended="end"></audio>
   </div>
 </template>
 
@@ -80,6 +80,8 @@ import {getvkey, getMediaUrl} from 'api/commonApi'
 import {ERR_OK} from 'api/config'
 import ProgressBar from 'base/progress-bar/progress-bar'
 import ProgressCircle from 'base/progress-circle/progress-circle'
+import {playMode} from 'common/js/config'
+import {shuffle} from 'common/js/util'
 
 const transform = prefixStyle('transform')
 export default {
@@ -91,7 +93,41 @@ export default {
     }
   },
   methods: {
+    end () {
+      console.log('end')
+      if (this.mode === playMode.loop) {
+        this.loop()
+      } else {
+        this.next()
+      }
+    },
+    loop () {
+      this.$refs.audio.currentTime = 0
+      this.$refs.audio.play()
+    },
+    changeMode () {
+      const mode = (this.mode + 1) % 3
+      this.setPlayMode(mode)
+      let list = null
+      if (mode === playMode.rangdom) {
+        list = shuffle(this.sequenceList)
+      } else {
+        list = this.sequenceList
+      }
+      this.resetCurrentIndex(list)
+      this.setPlayList(list)
+    },
+    resetCurrentIndex (list) {
+      let index = list.findIndex((item) => {
+        return item.id === this.currentSong.id
+      })
+      this.setCurrentIndex(index)
+    },
     onProgressBarChange (percent) {
+      if (percent >= 1) {
+        this.next()
+        return
+      }
       this.$refs.audio.currentTime = this.currentSong.duration * percent
       if (!this.playing) {
         this.togglePlaying()
@@ -118,9 +154,9 @@ export default {
     ready () {
       this.songReady = true
     },
-    error () {
+    error (e) {
       this.songReady = true
-      console.log('error')
+      console.log(e)
     },
     next () {
       if (!this.songReady) {
@@ -225,11 +261,16 @@ export default {
       setFullScreen: 'SET_FULL_SCREEN',
       setPlayingState: 'SET_PLAYING_STATE',
       setCurrentIndex: 'SET_CURRENT_INDEX',
-      setCurrentMusicUrl: 'SET_CURRENT_MUSIC_URL'
+      setCurrentMusicUrl: 'SET_CURRENT_MUSIC_URL',
+      setPlayMode: 'SET_PLAY_MODE',
+      setPlayList: 'SET_PLAYLIST'
     })
   },
   watch: {
-    currentSong () {
+    currentSong (newSong, oldSong) {
+      if (newSong.id === oldSong.id) {
+        return
+      }
       this.$nextTick(() => {
         this.$refs.audio.play()
       })
@@ -242,6 +283,9 @@ export default {
     }
   },
   computed: {
+    modeIcon () {
+      return this.mode === playMode.sequence ? 'icon-sequence' : this.mode === playMode.loop ? 'icon-loop' : 'icon-random'
+    },
     playIcon () {
       return this.playing ? 'icon-pause' : 'icon-play'
     },
@@ -263,7 +307,9 @@ export default {
       'currentSong',
       'currentIndex',
       'currentMusicUrl',
-      'playing'
+      'playing',
+      'mode',
+      'sequenceList'
     ])
   },
   components: {

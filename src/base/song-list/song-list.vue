@@ -12,8 +12,6 @@
 </template>
 
 <script>
-import {getvkey, getMediaUrl} from 'api/commonApi'
-import {ERR_OK} from 'api/config'
 export default {
   props: {
     songs: Array,
@@ -21,14 +19,16 @@ export default {
   },
   methods: {
     selectItem (item, index) {
-      getvkey(item.mid).then((res) => {
-        if (res.code === ERR_OK) {
-          let vkey = res.data.items[0].vkey
-          let filename = res.data.items[0].filename
-          let url = getMediaUrl(filename, vkey)
-          this.$emit('select', item, index, url)
-        }
-      })
+      console.log(index)
+      this.$emit('select', item, index)
+      // getvkey(item.mid).then((res) => {
+      //   if (res.code === ERR_OK) {
+      //     let vkey = res.data.items[0].vkey
+      //     let filename = res.data.items[0].filename
+      //     let url = getMediaUrl(filename, vkey)
+      //     this.$emit('select', item, index, url)
+      //   }
+      // })
     },
     getDesc (songs) {
       return `${songs.singer}·${songs.album}`
