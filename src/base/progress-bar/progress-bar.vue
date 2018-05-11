@@ -26,7 +26,11 @@ export default {
   },
   methods: {
     progressClick (e) {
-      this._offset(e.offsetX)
+      const rect = this.$refs.progressBar.getBoundingClientRect()
+      const offsetWidth = e.pageX - rect.left
+      this._offset(offsetWidth)
+      // 当点击 progressBtn 的时候，e.ooffsetX获取不对
+      // this._offset(e.offsetX)
       this._triggerPercent()
     },
     progressTouchStart (e) {
@@ -39,7 +43,7 @@ export default {
         return
       }
       const deltaX = e.touches[0].pageX - this.touch.startX
-      const offsetWidth = Math.min(this.$refs.progressBar.clientWidth, Math.max(0, this.touch.left + deltaX))
+      const offsetWidth = Math.min(this.$refs.progressBar.clientWidth - progressBtnWidth, Math.max(0, this.touch.left + deltaX))
       this._offset(offsetWidth)
     },
     progressTouchEnd (e) {
