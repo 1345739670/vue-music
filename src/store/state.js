@@ -7,6 +7,7 @@ const state = {
   sequenceList: [],
   mode: playMode.sequence,
   currentIndex: -1,
-  currentMusicUrl: '' // 当前播放索引
+  currentMusicUrl: '',
+  disc: {}
 }
 export default state

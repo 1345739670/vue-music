@@ -1,5 +1,24 @@
 import { commonParams, options } from './config'
+import axios from 'axios'
 import jsonp from '../common/js/jsonp'
+
+export function getLyric (mid) {
+  const url = '/api/lyric'
+  const data = Object.assign({}, commonParams, {
+    songmid: mid,
+    pcachetime: new Date(),
+    hostUin: 0,
+    platform: 'yqq',
+    needNewCode: 0,
+    g_tk: 5381,
+    format: 'json'
+  })
+  return axios.get(url, {
+    params: data
+  }).then((res) => {
+    return Promise.resolve(res.data)
+  })
+}
 
 export function getvkey (songmid) {
   const url = 'https://c.y.qq.com/base/fcgi-bin/fcg_music_express_mobile3.fcg'

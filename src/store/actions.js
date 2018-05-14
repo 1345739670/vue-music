@@ -1,7 +1,7 @@
 import * as types from './mutations-types'
 import {playMode} from 'common/js/config'
 import {shuffle} from 'common/js/util'
-import {getvkey, getMediaUrl} from 'api/commonApi'
+import {getvkey, getMediaUrl} from 'api/song'
 import {ERR_OK} from 'api/config'
 
 function findIndex (list, song) {
