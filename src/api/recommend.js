@@ -1,6 +1,4 @@
 import { commonParams, options } from './config'
-// import splicParams from 'common/js/splicParams'
-// import originjsonp from 'common/js/jsonp'
 import jsonp from '../common/js/jsonp'
 import Axios from 'axios'
 export function getRecommend () {
