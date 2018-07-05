@@ -77,32 +77,36 @@
             <i class="icon-mini" :class="miniIcon" @click.stop="togglePlaying"></i>
           </progress-circle>
         </div>
-        <div class="control">
+        <div class="control" @click.stop="showPlaylist">
           <i class="icon-playlist"></i>
         </div>
       </div>
     </transition>
+    <playlist ref="playlist"></playlist>
     <audio :src="currentMusicUrl" ref="audio" @canplay="ready" @error="error" @timeupdate="updateTime" @ended="end"></audio>
   </div>
 </template>
 
 <script>
+
+import Lyric from 'lyric-parser'
 import {mapGetters, mapMutations} from 'vuex'
 import animations from 'create-keyframe-animation'
-import {prefixStyle} from 'common/js/dom'
 import {getvkey, getMediaUrl} from 'api/song'
 import {ERR_OK} from 'api/config'
 import ProgressBar from 'base/progress-bar/progress-bar'
 import ProgressCircle from 'base/progress-circle/progress-circle'
-import {playMode} from 'common/js/config'
-import {shuffle} from 'common/js/util'
-import Lyric from 'lyric-parser'
+import Playlist from 'components/playlist/playlist'
 import Scroll from 'base/scroll/scroll'
+import {prefixStyle} from 'common/js/dom'
+import {playMode} from 'common/js/config'
+import {playerMinxin} from 'common/js/mixin'
 
 const transform = prefixStyle('transform')
 const transitionDuration = prefixStyle('transitionDuration')
 
 export default {
+  mixins: [playerMinxin],
   created () {
     this.touch = {}
   },
@@ -118,6 +122,9 @@ export default {
     }
   },
   methods: {
+    showPlaylist () {
+      this.$refs.playlist.show()
+    },
     middleTouchStart (e) {
       // 标志位
       this.touch.initiated = true
@@ -207,24 +214,6 @@ export default {
       if (this.currentLyric) {
         this.currentLyric.seek(0)
       }
-    },
-    changeMode () {
-      const mode = (this.mode + 1) % 3
-      this.setPlayMode(mode)
-      let list = null
-      if (mode === playMode.rangdom) {
-        list = shuffle(this.sequenceList)
-      } else {
-        list = this.sequenceList
-      }
-      this.resetCurrentIndex(list)
-      this.setPlayList(list)
-    },
-    resetCurrentIndex (list) {
-      let index = list.findIndex((item) => {
-        return item.id === this.currentSong.id
-      })
-      this.setCurrentIndex(index)
     },
     onProgressBarChange (percent) {
       if (percent >= 1) {
@@ -377,16 +366,14 @@ export default {
       }
     },
     ...mapMutations({
-      setFullScreen: 'SET_FULL_SCREEN',
-      setPlayingState: 'SET_PLAYING_STATE',
-      setCurrentIndex: 'SET_CURRENT_INDEX',
-      setCurrentMusicUrl: 'SET_CURRENT_MUSIC_URL',
-      setPlayMode: 'SET_PLAY_MODE',
-      setPlayList: 'SET_PLAYLIST'
+      setFullScreen: 'SET_FULL_SCREEN'
     })
   },
   watch: {
     currentSong (newSong, oldSong) {
+      if (!newSong.id) {
+        return
+      }
       if (newSong.id === oldSong.id) {
         return
       }
@@ -406,9 +393,6 @@ export default {
     }
   },
   computed: {
-    modeIcon () {
-      return this.mode === playMode.sequence ? 'icon-sequence' : this.mode === playMode.loop ? 'icon-loop' : 'icon-random'
-    },
     playIcon () {
       return this.playing ? 'icon-pause' : 'icon-play'
     },
@@ -426,19 +410,16 @@ export default {
     },
     ...mapGetters([
       'fullScreen',
-      'playList',
-      'currentSong',
       'currentIndex',
       'currentMusicUrl',
-      'playing',
-      'mode',
-      'sequenceList'
+      'playing'
     ])
   },
   components: {
     ProgressBar,
     ProgressCircle,
-    Scroll
+    Scroll,
+    Playlist
   }
 }
 </script>
