@@ -4,7 +4,7 @@
       <search-box ref="searchBox" @query="onQueryChange"></search-box>
     </div>
     <div class="shortcut-wrapper" v-show="!query" ref="shortcutWrapper">
-      <scroll class="shortcut" ref="shortcut" :data="shortcut">
+      <scroll class="shortcut" ref="shortcut" :data="shortcut" :refreshDelay="refreshDelay">
         <div>
           <div class="hot-key">
             <h1 class="title">热门搜索</h1>
@@ -42,26 +42,25 @@ import Scroll from 'base/scroll/scroll'
 import Suggest from 'components/suggest/suggest'
 import {getHotKey} from 'api/search'
 import {ERR_OK} from 'api/config'
-import {mapActions, mapGetters} from 'vuex'
-import {playListMixin} from 'common/js/mixin'
+import {mapActions} from 'vuex'
+import {playListMixin, searchMixin} from 'common/js/mixin'
 export default {
-  mixins: [playListMixin],
+  mixins: [
+    playListMixin,
+    searchMixin
+  ],
   created () {
     this._getHotKey()
   },
   data () {
     return {
-      hotkey: [],
-      query: ''
+      hotkey: []
     }
   },
   computed: {
     shortcut () {
       return this.hotkey.concat(this.searchHistory)
-    },
-    ...mapGetters([
-      'searchHistory'
-    ])
+    }
   },
   methods: {
     handlePlayList (playlist) {
@@ -74,18 +73,6 @@ export default {
     showConfirm () {
       this.$refs.confirm.show()
     },
-    saveSearch () {
-      this.saveSearchHistory(this.query)
-    },
-    blurInput () {
-      this.$refs.searchBox.blur()
-    },
-    onQueryChange (query) {
-      this.query = query
-    },
-    addQuery (query) {
-      this.$refs.searchBox.setQuery(query)
-    },
     _getHotKey () {
       getHotKey().then((res) => {
         if (res.code === ERR_OK) {
@@ -94,8 +81,6 @@ export default {
       })
     },
     ...mapActions([
-      'saveSearchHistory',
-      'deleteSearchHistory',
       'clearSearchHistory'
     ])
   },

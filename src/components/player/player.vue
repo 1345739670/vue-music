@@ -90,7 +90,7 @@
 <script>
 
 import Lyric from 'lyric-parser'
-import {mapGetters, mapMutations} from 'vuex'
+import {mapGetters, mapMutations, mapActions} from 'vuex'
 import animations from 'create-keyframe-animation'
 import {getvkey, getMediaUrl} from 'api/song'
 import {ERR_OK} from 'api/config'
@@ -249,6 +249,7 @@ export default {
     },
     ready () {
       this.songReady = true
+      this.savePlayHistory(this.currentSong)
     },
     error (e) {
       this.songReady = true
@@ -367,7 +368,10 @@ export default {
     },
     ...mapMutations({
       setFullScreen: 'SET_FULL_SCREEN'
-    })
+    }),
+    ...mapActions([
+      'savePlayHistory'
+    ])
   },
   watch: {
     currentSong (newSong, oldSong) {
