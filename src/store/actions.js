@@ -3,7 +3,7 @@ import {playMode} from 'common/js/config'
 import {shuffle} from 'common/js/util'
 import {getvkey, getMediaUrl} from 'api/song'
 import {ERR_OK} from 'api/config'
-import {saveSearch, deleteSearch, clearSearch, savePlay} from 'common/js/cashe'
+import {saveSearch, deleteSearch, clearSearch, savePlay, saveFavorite, deleteFavorite} from 'common/js/cashe'
 
 function findIndex (list, song) {
   return list.findIndex((item) => {
@@ -35,7 +35,7 @@ export const selectPlay = function ({commit, state}, {list, index}) {
   })
 }
 
-export const randomPlay = function ({commit}, {list, url}) {
+export const randomPlay = function ({commit}, {list}) {
   commit(types.SET_PLAY_MODE, playMode.random)
   commit(types.SET_SEQUENCE_LIST, list)
   let randomList = shuffle(list)
@@ -169,4 +169,12 @@ export const deleteSongList = function ({commit}) {
 
 export const savePlayHistory = function ({commit}, song) {
   commit(types.SET_PLAY_HISTORY, savePlay(song))
+}
+
+export const saveFavoriteList = function ({commit}, song) {
+  commit(types.SET_FAVORITE_LIST, saveFavorite(song))
+}
+
+export const deleteFavoriteList = function ({commit}, song) {
+  commit(types.SET_FAVORITE_LIST, deleteFavorite(song))
 }
